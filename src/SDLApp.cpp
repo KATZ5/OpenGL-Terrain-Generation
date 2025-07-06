@@ -3,7 +3,7 @@
 bool SDLAppInit(SDLApp &app) {
   if (!SDL_Init(SDL_INIT_VIDEO)) {
     std::cerr << "Failed to initilaize SDL: " << SDL_GetError();
-    return 0;
+    return false;
   }
 
   app.window =
@@ -11,7 +11,7 @@ bool SDLAppInit(SDLApp &app) {
 
   if (app.window == NULL) {
     std::cerr << "Failed to create window: " << SDL_GetError() << std::endl;
-    return 0;
+    return false;
   }
 
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
@@ -24,7 +24,7 @@ bool SDLAppInit(SDLApp &app) {
   SDL_GL_MakeCurrent(app.window, app.glContext);
 
   gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress);
-  return 1;
+  return true;
 }
 
 void SDLAppQuit(SDLApp &app) {

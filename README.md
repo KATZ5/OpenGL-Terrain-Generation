@@ -1,15 +1,13 @@
-# SDL-Cellular-Automata-Game-of-Life
+# OpenGL terrain generation
 
-Conwey's Game of life implemented in C++ usind SDL3
-
-<img src="./screenshorts/Screenshot1.png" width="644px">
+Terrein generation implemented in OpenGL
 
 ## CLONING
 
 There are submodule present in the repo so be sure to clone it recursively with the following command:
 
 ```
-git clone --recursive https://github.com/KATZ5/SDL-Cellular-Automata-Game-of-Life.git
+git clone --recursive https://github.com/KATZ5/OpenGL-Terrain-Generation.git
 ```
 
 Updating submodules manually:
@@ -42,7 +40,7 @@ cmake .. -G "MinGW Makefiles"
 Linux:
 
 ```
-cd SDL-Cellular-Automata-Game-of-Life
+cd OpenGL-Terrain-Generation
 mkdir build && cd build
 cmake ..
 make
