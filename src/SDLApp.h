@@ -1,15 +1,16 @@
 #pragma once
-#include <SDL3/SDL.h>
-#include <iostream>
-
 #include "glad.h"
+#include <SDL3/SDL.h>
+#include <fstream>
+#include <iostream>
+#include <sstream>
 typedef struct SDLApp {
   SDL_Window *window = NULL;
   SDL_GLContext glContext = NULL;
   bool running = true;
   const char *title = "OPENGL";
-  int width = 1280;
-  int height = 720;
+  int width = 800;
+  int height = 600;
 
   ~SDLApp() {
     if (window) {
@@ -23,6 +24,12 @@ typedef struct SDLApp {
 
 } SDLApp;
 
+typedef struct Shaders {
+  std::string vertexShaderSource;
+  std::string fragmentShaderSource;
+} Shaders;
+
 bool SDLAppInit(SDLApp &app);
+Shaders readShaders(const std::string &vertPath, const std::string &fragPath);
 void SDLAppQuit(SDLApp &app);
 void mainloop(SDLApp &app);

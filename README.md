@@ -28,7 +28,7 @@ Use the provided CMakeLists.txt with CMake to generate a build configuration for
 Windows using Visual Studio:
 
 ```
-cmake -G "Visual Studio 14 2015 Win64"
+cmake -G "Visual Studio 17 2022 Win64"
 ```
 
 Windows using MinGW:
