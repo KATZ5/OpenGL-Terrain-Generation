@@ -9,8 +9,8 @@ typedef struct SDLApp {
   SDL_GLContext glContext = NULL;
   bool running = true;
   const char *title = "OPENGL";
-  int width = 1280;
-  int height = 720;
+  int width = 800;
+  int height = 600;
 
   ~SDLApp() {
     if (window) {
