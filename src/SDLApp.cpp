@@ -1,5 +1,6 @@
 #include "SDLApp.h"
-Shaders readShaders(const std::string &vertPath, const std::string &fragPath) {
+#include <SDL3/SDL_timer.h>
+ShaderSources readShaders(const std::string &vertPath, const std::string &fragPath) {
   std::string line;
   std::stringstream ss[2];
   std::ifstream vertShader(vertPath);
@@ -9,7 +10,7 @@ Shaders readShaders(const std::string &vertPath, const std::string &fragPath) {
 
   } else {
     while (getline(vertShader, line)) {
-      std::cout << line << std::endl;
+      //     std::cout << line << std::endl;
       ss[0] << line << '\n';
     }
   }
@@ -18,12 +19,61 @@ Shaders readShaders(const std::string &vertPath, const std::string &fragPath) {
   } else {
     while (getline(fragShader, line)) {
 
-      std::cout << line << std::endl;
+      //   std::cout << line << std::endl;
       ss[1] << line << '\n';
     }
   }
-  return Shaders{ss[0].str(), ss[1].str()};
+  return ShaderSources{ss[0].str(), ss[1].str()};
 }
+
+unsigned int createShaderProgram(const char *vertexSource, const char *fragmentSource) {
+  unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
+  glShaderSource(vertexShader, 1, &vertexSource, NULL);
+  glCompileShader(vertexShader);
+
+  // check if vertext shader compilation was successful
+  int success;
+  char infoLog[512];
+  glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+  if (!success) {
+    glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+    std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n"
+              << infoLog << std::endl;
+  }
+
+  // create the fragment shader and compile it
+  unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+  glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
+  glCompileShader(fragmentShader);
+
+  // check if fragment shader compilation was successful
+  if (!success) {
+    glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+    std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n"
+              << infoLog << std::endl;
+  }
+
+  // creting the shader program
+  unsigned int shaderProgram = glCreateProgram();
+
+  glAttachShader(shaderProgram, vertexShader);
+  glAttachShader(shaderProgram, fragmentShader);
+  glLinkProgram(shaderProgram);
+
+  // chack if linking shader program failed
+  glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+  if (!success) {
+    glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+    std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n"
+              << infoLog << std::endl;
+  }
+
+  glDeleteShader(vertexShader);
+  glDeleteShader(fragmentShader);
+
+  return shaderProgram;
+}
+
 bool SDLAppInit(SDLApp &app) {
   if (!SDL_Init(SDL_INIT_VIDEO)) {
     std::cerr << "Failed to initilaize SDL: " << SDL_GetError();
@@ -64,10 +114,10 @@ void SDLAppQuit(SDLApp &app) {
 
 void mainloop(SDLApp &app) {
   float vertices[] = {
-      0.5f, 0.5f, 0.0f,
-      0.5f, -0.5f, 0.0f,
-      -0.5f, -0.5f, 0.0f,
-      -0.5f, 0.5f, 0.0f};
+      1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+      1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+      -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+      -1.0f, 1.0f, 0.0f, 0.0f, 1.0f};
 
   unsigned int indices[] = {
       0, 1, 2,
@@ -75,53 +125,8 @@ void mainloop(SDLApp &app) {
   // create VBO and bind it
   // create the vertext shader and compile it
 
-  Shaders shaders = readShaders("../assets/shaders/basic.vert", "../assets/shaders/basic.frag");
-  const char *vertSource = shaders.vertexShaderSource.c_str();
-  unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-  glShaderSource(vertexShader, 1, &vertSource, NULL);
-  glCompileShader(vertexShader);
-
-  // check if vertext shader compilation was successful
-  int success;
-  char infoLog[512];
-  glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-  if (!success) {
-    glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-    std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n"
-              << infoLog << std::endl;
-  }
-
-  // create the fragment shader and compile it
-  const char *fragSource = shaders.fragmentShaderSource.c_str();
-  unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-  glShaderSource(fragmentShader, 1, &fragSource, NULL);
-  glCompileShader(fragmentShader);
-
-  // check if fragment shader compilation was successful
-  if (!success) {
-    glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-    std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n"
-              << infoLog << std::endl;
-  }
-
-  // creting the shader program
-  unsigned int shaderProgram = glCreateProgram();
-
-  glAttachShader(shaderProgram, vertexShader);
-  glAttachShader(shaderProgram, fragmentShader);
-  glLinkProgram(shaderProgram);
-
-  // chack if linking shader program failed
-  glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-  if (!success) {
-    glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-    std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n"
-              << infoLog << std::endl;
-  }
-
-  glDeleteShader(vertexShader);
-  glDeleteShader(fragmentShader);
-
+  ShaderSources shaders = readShaders("../assets/shaders/basic.vert", "../assets/shaders/basic.frag");
+  unsigned int shaderProgram = createShaderProgram(shaders.vertexShaderSource.c_str(), shaders.fragmentShaderSource.c_str());
   unsigned int VAO;
   unsigned int VBO;
   unsigned int EBO;
@@ -134,13 +139,16 @@ void mainloop(SDLApp &app) {
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-  const int stride = 3 * sizeof(float);
+  const int stride = 5 * sizeof(float);
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (void *)0);
   glEnableVertexAttribArray(0);
+  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void *)(3 * sizeof(float)));
+  glEnableVertexAttribArray(1);
 
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindVertexArray(0);
-
+  GLint time = glGetUniformLocation(shaderProgram, "iTime");
+  GLint locResolution = glGetUniformLocation(shaderProgram, "iResolution");
   // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   while (app.running) {
 
@@ -152,12 +160,19 @@ void mainloop(SDLApp &app) {
       }
     }
 
+    glUseProgram(shaderProgram);
+    float t = SDL_GetTicks() * 0.001;
+    glUniform1f(time, t);
+
+    glUniform2f(locResolution,
+                static_cast<float>(app.width),
+                static_cast<float>(app.height));
+
     glClearColor(0.2f, 0.5f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
-    glUseProgram(shaderProgram);
     glBindVertexArray(VAO);
     // glDrawArrays(GL_TRIANGLES, 0, 3);
-    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     SDL_GL_SwapWindow(app.window);
   }
 }
