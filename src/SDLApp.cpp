@@ -74,6 +74,17 @@ unsigned int createShaderProgram(const char *vertexSource, const char *fragmentS
   return shaderProgram;
 }
 
+void reloadShaderProgram(unsigned int *program, const std::string &vertexPath, const std::string &fragmentPath) {
+  ShaderSources shaders = readShaders(vertexPath, fragmentPath);
+  unsigned int newProgram = createShaderProgram(shaders.vertexShaderSource.c_str(), shaders.fragmentShaderSource.c_str());
+
+  if (newProgram) {
+    std::cout << "SHADERS RELOADED!!." << std::endl;
+    glDeleteProgram(*program);
+    *program = newProgram;
+  }
+}
+
 bool SDLAppInit(SDLApp &app) {
   if (!SDL_Init(SDL_INIT_VIDEO)) {
     std::cerr << "Failed to initilaize SDL: " << SDL_GetError();
@@ -124,8 +135,10 @@ void mainloop(SDLApp &app) {
       2, 3, 0};
   // create VBO and bind it
   // create the vertext shader and compile it
+  const std::string vertexPath = "../assets/shaders/basic.vert";
 
-  ShaderSources shaders = readShaders("../assets/shaders/basic.vert", "../assets/shaders/basic.frag");
+  const std::string fragmentPath = "../assets/shaders/basic.frag";
+  ShaderSources shaders = readShaders(vertexPath, fragmentPath);
   unsigned int shaderProgram = createShaderProgram(shaders.vertexShaderSource.c_str(), shaders.fragmentShaderSource.c_str());
   unsigned int VAO;
   unsigned int VBO;
@@ -157,6 +170,10 @@ void mainloop(SDLApp &app) {
       switch (event.type) {
       case SDL_EVENT_QUIT:
         app.running = false;
+      case SDL_EVENT_KEY_DOWN:
+        if (event.key.scancode == SDL_SCANCODE_R) {
+          reloadShaderProgram(&shaderProgram, vertexPath, fragmentPath);
+        }
       }
     }
 

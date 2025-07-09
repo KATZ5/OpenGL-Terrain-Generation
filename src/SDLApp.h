@@ -9,8 +9,8 @@ typedef struct SDLApp {
   SDL_GLContext glContext = NULL;
   bool running = true;
   const char *title = "OPENGL";
-  int width = 800;
-  int height = 600;
+  int width = 1280;
+  int height = 720;
 
   ~SDLApp() {
     if (window) {
@@ -32,5 +32,6 @@ struct ShaderSources {
 bool SDLAppInit(SDLApp &app);
 ShaderSources readShaders(const std::string &vertPath, const std::string &fragPath);
 unsigned int createShaderProgram(const char *vertexSource, const char *fragmentSource);
+void reloadShaderProgram(unsigned int *program, const char *vertexPath, const char *fragmentPath);
 void SDLAppQuit(SDLApp &app);
 void mainloop(SDLApp &app);

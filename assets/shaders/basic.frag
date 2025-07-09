@@ -8,15 +8,20 @@ uniform float iTime;
 
 float t = iTime;
 vec2 r = iResolution;
-vec2 fragCoord = uvs * iResolution;
 
 
 
 
 void main()
 {
+    vec2 fragCoord = uvs * iResolution;
+
     vec2 uv = uvs *2.0 -1.0;
     float aspect = iResolution.x/iResolution.y;
     uv.x *= aspect;
-    FragColor = vec4(uv, 0.0, 1.0);
+    
+    float distance =length(uv);
+    FragColor.rgb = vec3(distance);
+      
+    
 }
