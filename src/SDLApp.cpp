@@ -1,4 +1,6 @@
 #include "SDLApp.h"
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 #include <SDL3/SDL_timer.h>
 ShaderSources readShaders(const std::string &vertPath, const std::string &fragPath) {
   std::string line;
@@ -163,6 +165,21 @@ void mainloop(SDLApp &app) {
   GLint time = glGetUniformLocation(shaderProgram, "iTime");
   GLint locResolution = glGetUniformLocation(shaderProgram, "iResolution");
   // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+  // generating texture
+  int tWidth, tHeight, tNrChannels;
+  unsigned char *data = stbi_load("../assets/Textures/7R4wB.png", &tWidth, &tHeight, &tNrChannels, 0);
+
+  unsigned int textures;
+  glGenTextures(1, &textures);
+  glBindTexture(GL_TEXTURE_2D, textures);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tWidth, tHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+  glGenerateMipmap(GL_TEXTURE_2D);
+  stbi_image_free(data);
   while (app.running) {
 
     SDL_Event event;

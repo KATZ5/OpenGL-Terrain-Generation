@@ -1,5 +1,7 @@
 # OpenGL terrain generation
 
+Work in progress
+
 Terrein generation implemented in OpenGL
 
 ## CLONING
